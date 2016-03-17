@@ -1,18 +1,23 @@
 <?php
 if ("$_SERVER[REQUEST_URI]" == "/index.php/validarFirma") {
-	if($_POST["hash"]==null || $_POST["mensaje"] == null  || hash ("sha256" ,$_POST["mensaje"]) == null){
+	if($_POST["hash"]==null || $_POST["mensaje"] == null){
 		http_response_code(400);
 		echo "Parametros incorrectos";
 	}
+	elseif ( hash ("sha256" ,$_POST["mensaje"]) == null){
+		http_response_code(500);
+		echo "error de servidor";
+	}
 	else{
-		http_response_code(200);
-		echo "mensaje: ". json_encode($_POST["mensaje"]);
-		
-		if ($_POST["hash"] == hash ("sha256" ,$_POST["mensaje"])){
-			echo "\nvalido: ". json_encode(true);
+		if (strtolower ($_POST["hash"]) == strtolower ( hash ("sha256" ,$_POST["mensaje"]))){
+			$arr = array('mensaje' => $_POST["mensaje"], 'valido' => true);
+			echo json_encode($arr);
+			http_response_code(200);
 		}
 		else{
-			echo "\nvalido: ". json_encode(false);
+			$arr = array('mensaje' => $_POST["mensaje"], 'valido' => false);
+			echo json_encode($arr);
+			http_response_code(200);
 	}
 	}
 }
